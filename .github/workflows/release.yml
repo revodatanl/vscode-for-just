@@ -40,9 +40,7 @@ jobs:
         run: yarn pretest
 
       - name: Package VSIX
-        run: yarn vsce package --yarn --out build/
-        env:
-          NODE_ENV: production
+        run: mkdir -p build && yarn vsce package --yarn --out build/
 
       - name: Publish to VS Marketplace
         run: yarn vsce publish --yarn --packagePath build/*.vsix

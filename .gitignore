@@ -1,0 +1,29 @@
+# vscode
+*.vsix
+.vscode-test/
+build/
+dist/
+out/
+
+# asdf
+.tool-versions
+
+# dependencies
+node_modules
+
+# environment
+.env*
+
+# yarn
+yarn-error.log
+
+# other
+.DS_Store
+
+# Local justfile components
+shell.justfile
+
+# Assistants
+.mcp.json
+CLAUDE.md
+.claude/

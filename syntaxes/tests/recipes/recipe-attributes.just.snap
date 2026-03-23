@@ -1,0 +1,231 @@
+># Recipe attributes
+#^^^^^^^^^^^^^^^^^^^ source.just comment.line.number-sign.just
+>
+>[confirm]
+#^ source.just
+# ^^^^^^^ source.just support.function.system.just
+#        ^^ source.just
+>[default]
+#^ source.just
+# ^^^^^^^ source.just support.function.system.just
+#        ^^ source.just
+>[doc]
+#^ source.just
+# ^^^ source.just support.function.system.just
+#    ^^ source.just
+>[exit-message]
+#^ source.just
+# ^^^^^^^^^^^^ source.just support.function.system.just
+#             ^^ source.just
+>[extension]
+#^ source.just
+# ^^^^^^^^^ source.just support.function.system.just
+#          ^^ source.just
+>[linux]
+#^ source.just
+# ^^^^^ source.just support.function.system.just
+#      ^^ source.just
+>[macos]
+#^ source.just
+# ^^^^^ source.just support.function.system.just
+#      ^^ source.just
+>[metadata]
+#^ source.just
+# ^^^^^^^^ source.just support.function.system.just
+#         ^^ source.just
+>[no-cd]
+#^ source.just
+# ^^^^^ source.just support.function.system.just
+#      ^^ source.just
+>[no-exit-message]
+#^ source.just
+# ^^^^^^^^^^^^^^^ source.just support.function.system.just
+#                ^^ source.just
+>[no-quiet]
+#^ source.just
+# ^^^^^^^^ source.just support.function.system.just
+#         ^^ source.just
+>[openbsd]
+#^ source.just
+# ^^^^^^^ source.just support.function.system.just
+#        ^^ source.just
+>[parallel]
+#^ source.just
+# ^^^^^^^^ source.just support.function.system.just
+#         ^^ source.just
+>[private]
+#^ source.just
+# ^^^^^^^ source.just support.function.system.just
+#        ^^ source.just
+>[script]
+#^ source.just
+# ^^^^^^ source.just support.function.system.just
+#       ^^ source.just
+>[unix]
+#^ source.just
+# ^^^^ source.just support.function.system.just
+#     ^^ source.just
+>[windows]
+#^ source.just
+# ^^^^^^^ source.just support.function.system.just
+#        ^^ source.just
+>[working-directory]
+#^ source.just
+# ^^^^^^^^^^^^^^^^^ source.just support.function.system.just
+#                  ^^ source.just
+>foo:
+#^^^ source.just entity.name.function.just
+#   ^ source.just keyword.operator.recipe.end.just
+>    echo "foo"
+#^^^^^^^^^ source.just
+#         ^ source.just string.quoted.double.just string.quoted.double.just
+#          ^^^ source.just string.quoted.double.just
+#             ^ source.just string.quoted.double.just
+>
+># Attribute chaining
+#^^^^^^^^^^^^^^^^^^^^ source.just comment.line.number-sign.just
+>
+>[no-cd, private]
+#^ source.just
+# ^^^^^ source.just support.function.system.just
+#      ^ source.just
+#       ^^^^^^^^ source.just support.function.system.just
+#               ^^ source.just
+>foo:
+#^^^ source.just entity.name.function.just
+#   ^ source.just keyword.operator.recipe.end.just
+>    echo "foo"
+#^^^^^^^^^ source.just
+#         ^ source.just string.quoted.double.just string.quoted.double.just
+#          ^^^ source.just string.quoted.double.just
+#             ^ source.just string.quoted.double.just
+>
+># Attribute values
+#^^^^^^^^^^^^^^^^^^ source.just comment.line.number-sign.just
+>
+>[confirm("Are you sure you want to delete everything?")]
+#^ source.just
+# ^^^^^^^ source.just support.function.system.just
+#        ^ source.just
+#         ^ source.just string.quoted.double.just string.quoted.double.just
+#          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ source.just string.quoted.double.just
+#                                                     ^ source.just string.quoted.double.just
+#                                                      ^ source.just
+#                                                       ^^ source.just
+>delete-everything:
+#^^^^^^^^^^^^^^^^^ source.just entity.name.function.just
+#                 ^ source.just keyword.operator.recipe.end.just
+>    rm -rf *
+#^^^^^^^^^^^^^ source.just
+>
+>[confirm: "Are you sure you want to delete everything?"]
+#^ source.just
+# ^^^^^^^ source.just support.function.system.just
+#        ^ source.just keyword.operator.attribute.end.just
+#         ^ source.just
+#          ^ source.just string.quoted.double.just string.quoted.double.just
+#           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ source.just string.quoted.double.just
+#                                                      ^ source.just string.quoted.double.just
+#                                                       ^^ source.just
+>delete-everything:
+#^^^^^^^^^^^^^^^^^ source.just entity.name.function.just
+#                 ^ source.just keyword.operator.recipe.end.just
+>    rm -rf *
+#^^^^^^^^^^^^^ source.just
+>
+>
+># Recipe groups
+#^^^^^^^^^^^^^^^ source.just comment.line.number-sign.just
+>
+>[group('lint')]
+#^ source.just
+# ^^^^^ source.just support.function.system.just
+#      ^ source.just
+#       ^ source.just string.quoted.single.just string.quoted.single.just
+#        ^^^^ source.just string.quoted.single.just
+#            ^ source.just string.quoted.single.just
+#             ^ source.just
+#              ^^ source.just
+>js-lint:
+#^^^^^^^ source.just entity.name.function.just
+#       ^ source.just keyword.operator.recipe.end.just
+>    echo 'Running JS linter...'
+#^^^^^^^^^ source.just
+#         ^ source.just string.quoted.single.just string.quoted.single.just
+#          ^^^^^^^^^^^^^^^^^^^^ source.just string.quoted.single.just
+#                              ^ source.just string.quoted.single.just
+>
+>[group('rust recipes')]
+#^ source.just
+# ^^^^^ source.just support.function.system.just
+#      ^ source.just
+#       ^ source.just string.quoted.single.just string.quoted.single.just
+#        ^^^^^^^^^^^^ source.just string.quoted.single.just
+#                    ^ source.just string.quoted.single.just
+#                     ^ source.just
+#                      ^^ source.just
+>[group('lint')]
+#^ source.just
+# ^^^^^ source.just support.function.system.just
+#      ^ source.just
+#       ^ source.just string.quoted.single.just string.quoted.single.just
+#        ^^^^ source.just string.quoted.single.just
+#            ^ source.just string.quoted.single.just
+#             ^ source.just
+#              ^^ source.just
+>rust-lint:
+#^^^^^^^^^ source.just entity.name.function.just
+#         ^ source.just keyword.operator.recipe.end.just
+>    echo 'Running Rust linter...'
+#^^^^^^^^^ source.just
+#         ^ source.just string.quoted.single.just string.quoted.single.just
+#          ^^^^^^^^^^^^^^^^^^^^^^ source.just string.quoted.single.just
+#                                ^ source.just string.quoted.single.just
+>
+>[group('lint')]
+#^ source.just
+# ^^^^^ source.just support.function.system.just
+#      ^ source.just
+#       ^ source.just string.quoted.single.just string.quoted.single.just
+#        ^^^^ source.just string.quoted.single.just
+#            ^ source.just string.quoted.single.just
+#             ^ source.just
+#              ^^ source.just
+>cpp-lint:
+#^^^^^^^^ source.just entity.name.function.just
+#        ^ source.just keyword.operator.recipe.end.just
+>    echo 'Running C++ linter...'
+#^^^^^^^^^ source.just
+#         ^ source.just string.quoted.single.just string.quoted.single.just
+#          ^^^^^^^^^^^^^^^^^^^^^ source.just string.quoted.single.just
+#                               ^ source.just string.quoted.single.just
+>
+># Private aliases and variables
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ source.just comment.line.number-sign.just
+>
+>[private]
+#^ source.just
+# ^^^^^^^ source.just support.function.system.just
+#        ^^ source.just
+>alias foo := bar
+#^^^^^ source.just keyword.other.reserved.just
+#     ^ source.just
+#      ^^^ source.just variable.name.alias.just
+#         ^ source.just
+#          ^^ source.just keyword.operator.assignment.just
+#            ^ source.just
+#             ^^^ source.just variable.other.just
+>
+>[private]
+#^ source.just
+# ^^^^^^^ source.just support.function.system.just
+#        ^^ source.just
+>baz := 'qux'
+#^^^ source.just variable.other.just
+#   ^ source.just
+#    ^^ source.just keyword.operator.assignment.just
+#      ^ source.just
+#       ^ source.just string.quoted.single.just string.quoted.single.just
+#        ^^^ source.just string.quoted.single.just
+#           ^ source.just string.quoted.single.just
+>

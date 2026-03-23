@@ -1,0 +1,11 @@
+services:
+  dev:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    command: sleep infinity
+    environment:
+      - NODE_ENV=development
+    volumes:
+      - ./:/code
+      - /code/node_modules

@@ -1,0 +1,171 @@
+>
+># Aliases
+#^^^^^^^^^ source.just comment.line.number-sign.just
+>
+>alias b := build
+#^^^^^ source.just keyword.other.reserved.just
+#     ^ source.just
+#      ^ source.just variable.name.alias.just
+#       ^ source.just
+#        ^^ source.just keyword.operator.assignment.just
+#          ^ source.just
+#           ^^^^^ source.just variable.other.just
+>alias help-123 := some-recipe
+#^^^^^ source.just keyword.other.reserved.just
+#     ^ source.just
+#      ^^^^^^^^ source.just variable.name.alias.just
+#              ^ source.just
+#               ^^ source.just keyword.operator.assignment.just
+#                 ^ source.just
+#                  ^^^^^^^^^^^ source.just variable.other.just
+>
+># Variables and substitution
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^^ source.just comment.line.number-sign.just
+>
+>tmpdir  := `mktemp -d`
+#^^^^^^ source.just variable.other.just
+#      ^^ source.just
+#        ^^ source.just keyword.operator.assignment.just
+#          ^ source.just
+#           ^ source.just string.interpolated.just
+#            ^^^^^^ source.just source.shell meta.statement.shell meta.statement.command.shell meta.statement.command.name.shell entity.name.function.call.shell entity.name.command.shell
+#                  ^ source.just source.shell meta.statement.shell meta.statement.command.shell
+#                   ^ source.just source.shell meta.statement.shell meta.statement.command.shell string.unquoted.argument.shell constant.other.option.dash.shell
+#                    ^ source.just source.shell meta.statement.shell meta.statement.command.shell string.unquoted.argument constant.other.option
+#                     ^ source.just string.interpolated.just
+>version := "0.2.7"
+#^^^^^^^ source.just variable.other.just
+#       ^ source.just
+#        ^^ source.just keyword.operator.assignment.just
+#          ^ source.just
+#           ^ source.just string.quoted.double.just string.quoted.double.just
+#            ^^^^^ source.just string.quoted.double.just
+#                 ^ source.just string.quoted.double.just
+>tardir  := tmpdir / "awesomesauce-" + version
+#^^^^^^ source.just variable.other.just
+#      ^^ source.just
+#        ^^ source.just keyword.operator.assignment.just
+#          ^^^^^^^^ source.just
+#                  ^ source.just keyword.operator.path-join.just
+#                   ^ source.just
+#                    ^ source.just string.quoted.double.just string.quoted.double.just
+#                     ^^^^^^^^^^^^^ source.just string.quoted.double.just
+#                                  ^ source.just string.quoted.double.just
+#                                   ^ source.just
+#                                    ^ source.just keyword.operator.concat.just
+#                                     ^^^^^^^^ source.just
+>tarball := tardir + ".tar.gz"
+#^^^^^^^ source.just variable.other.just
+#       ^ source.just
+#        ^^ source.just keyword.operator.assignment.just
+#          ^^^^^^^^ source.just
+#                  ^ source.just keyword.operator.concat.just
+#                   ^ source.just
+#                    ^ source.just string.quoted.double.just string.quoted.double.just
+#                     ^^^^^^^ source.just string.quoted.double.just
+#                            ^ source.just string.quoted.double.just
+>
+>foo := "a/"
+#^^^ source.just variable.other.just
+#   ^ source.just
+#    ^^ source.just keyword.operator.assignment.just
+#      ^ source.just
+#       ^ source.just string.quoted.double.just string.quoted.double.just
+#        ^^ source.just string.quoted.double.just
+#          ^ source.just string.quoted.double.just
+>bar := foo / "b"
+#^^^ source.just variable.other.just
+#   ^ source.just
+#    ^^ source.just keyword.operator.assignment.just
+#      ^^^^^ source.just
+#           ^ source.just keyword.operator.path-join.just
+#            ^ source.just
+#             ^ source.just string.quoted.double.just string.quoted.double.just
+#              ^ source.just string.quoted.double.just
+#               ^ source.just string.quoted.double.just
+>
+># Logical operators
+#^^^^^^^^^^^^^^^^^^^ source.just comment.line.number-sign.just
+>
+>foo := '' && 'goodbye'      # ''
+#^^^ source.just variable.other.just
+#   ^ source.just
+#    ^^ source.just keyword.operator.assignment.just
+#      ^ source.just
+#       ^ source.just string.quoted.single.just string.quoted.single.just
+#        ^ source.just string.quoted.single.just
+#         ^ source.just
+#          ^^ source.just keyword.operator.and.just
+#            ^ source.just
+#             ^ source.just string.quoted.single.just string.quoted.single.just
+#              ^^^^^^^ source.just string.quoted.single.just
+#                     ^ source.just string.quoted.single.just
+#                      ^^^^^^ source.just
+#                            ^^^^ source.just comment.line.number-sign.just
+>bar := 'hello' && 'goodbye' # 'goodbye'
+#^^^ source.just variable.other.just
+#   ^ source.just
+#    ^^ source.just keyword.operator.assignment.just
+#      ^ source.just
+#       ^ source.just string.quoted.single.just string.quoted.single.just
+#        ^^^^^ source.just string.quoted.single.just
+#             ^ source.just string.quoted.single.just
+#              ^ source.just
+#               ^^ source.just keyword.operator.and.just
+#                 ^ source.just
+#                  ^ source.just string.quoted.single.just string.quoted.single.just
+#                   ^^^^^^^ source.just string.quoted.single.just
+#                          ^ source.just string.quoted.single.just
+#                           ^ source.just
+#                            ^^^^^^^^^^^ source.just comment.line.number-sign.just
+>
+>foo := '' || 'goodbye'      # 'goodbye'
+#^^^ source.just variable.other.just
+#   ^ source.just
+#    ^^ source.just keyword.operator.assignment.just
+#      ^ source.just
+#       ^ source.just string.quoted.single.just string.quoted.single.just
+#        ^ source.just string.quoted.single.just
+#         ^ source.just
+#          ^^ source.just keyword.operator.or.just
+#            ^ source.just
+#             ^ source.just string.quoted.single.just string.quoted.single.just
+#              ^^^^^^^ source.just string.quoted.single.just
+#                     ^ source.just string.quoted.single.just
+#                      ^^^^^^ source.just
+#                            ^^^^^^^^^^^ source.just comment.line.number-sign.just
+>bar := 'hello' || 'goodbye' # 'hello'
+#^^^ source.just variable.other.just
+#   ^ source.just
+#    ^^ source.just keyword.operator.assignment.just
+#      ^ source.just
+#       ^ source.just string.quoted.single.just string.quoted.single.just
+#        ^^^^^ source.just string.quoted.single.just
+#             ^ source.just string.quoted.single.just
+#              ^ source.just
+#               ^^ source.just keyword.operator.or.just
+#                 ^ source.just
+#                  ^ source.just string.quoted.single.just string.quoted.single.just
+#                   ^^^^^^^ source.just string.quoted.single.just
+#                          ^ source.just string.quoted.single.just
+#                           ^ source.just
+#                            ^^^^^^^^^ source.just comment.line.number-sign.just
+>
+># Exports
+#^^^^^^^^^ source.just comment.line.number-sign.just
+>
+>export RUST_BACKTRACE := "1"
+#^^^^^^ source.just keyword.other.reserved.just
+#      ^ source.just
+#       ^^^^^^^^^^^^^^ source.just variable.other.just
+#                     ^ source.just
+#                      ^^ source.just keyword.operator.assignment.just
+#                        ^ source.just
+#                         ^ source.just string.quoted.double.just string.quoted.double.just
+#                          ^ source.just string.quoted.double.just
+#                           ^ source.just string.quoted.double.just
+>unexport FOO
+#^^^^^^^^ source.just keyword.other.reserved.just
+#        ^ source.just
+#         ^^^ source.just variable.other.just
+>

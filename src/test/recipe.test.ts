@@ -1,6 +1,6 @@
 import * as assert from 'assert';
 
-import { parseRecipes, paramsToString } from '../recipe';
+import { paramsToString,parseRecipes } from '../recipe';
 import { RecipeParameterKind } from '../types';
 
 const makeJustDumpJson = (recipes: Record<string, unknown>) =>

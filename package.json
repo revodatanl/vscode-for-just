@@ -8,7 +8,7 @@
   "displayName": "VSCode for Just",
   "description": "Justfile syntax support for Visual Studio Code",
   "license": "MIT",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "engines": {
     "node": ">=22 || ^20.9.0",
     "vscode": ">=1.94.0"

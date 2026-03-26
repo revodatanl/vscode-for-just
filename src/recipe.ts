@@ -14,7 +14,13 @@ const LOGGER = getLogger();
 const asyncExec = promisify(exec);
 
 export const runRecipeCommand = async () => {
-  const recipes = await getRecipes();
+  let recipes: RecipeParsed[];
+  try {
+    recipes = await getRecipes();
+  } catch {
+    vscode.window.showErrorMessage('Failed to fetch recipes.');
+    return;
+  }
   if (!recipes.length) return;
 
   const recipeToRun = await selectRecipe(recipes);
@@ -74,23 +80,16 @@ export const getRecipes = async (): Promise<RecipeParsed[]> => {
     const { stdout, stderr } = await asyncExec(cmd, { cwd: workspaceRoot() });
 
     if (stderr) {
-      vscode.window.showErrorMessage('Failed to fetch recipes.');
       LOGGER.error(stderr);
-      return [];
+      throw new Error(stderr);
     }
 
     const evaluatedVars = await getEvaluatedVariables();
     return parseRecipes(stdout, evaluatedVars);
   } catch (error) {
-    if (error instanceof Error) {
-      vscode.window.showErrorMessage('Failed to fetch recipes.');
-      LOGGER.error(error.message);
-    } else {
-      vscode.window.showErrorMessage('Failed to fetch recipes.');
-      LOGGER.error('An unknown error occurred.');
-    }
-
-    return [];
+    const message = error instanceof Error ? error.message : 'An unknown error occurred.';
+    LOGGER.error(message);
+    throw new Error(message);
   }
 };
 

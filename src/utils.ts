@@ -40,3 +40,55 @@ export const getJustVersion = async (): Promise<string | undefined> => {
     return undefined;
   }
 };
+
+export const getJustfilePath = async (): Promise<string> => {
+  const fs = await import('node:fs/promises');
+  const path = await import('node:path');
+
+  const root = workspaceRoot();
+  const candidates = ['justfile', 'Justfile', '.justfile'];
+
+  for (const name of candidates) {
+    const filePath = path.join(root, name);
+    try {
+      await fs.access(filePath);
+      return filePath;
+    } catch {
+      // try next candidate
+    }
+  }
+
+  throw new Error(`No justfile found in ${root}`);
+};
+
+/**
+ * Parses a justfile for `import` and `mod` statements and returns the
+ * resolved file paths. Supports `import 'path'`, `import? 'path'`,
+ * `mod name 'path'`, and `mod? name 'path'` with single or double quotes.
+ */
+export const getJustfileImports = async (justfilePath: string): Promise<string[]> => {
+  const fs = await import('node:fs/promises');
+  const path = await import('node:path');
+
+  try {
+    const content = await fs.readFile(justfilePath, 'utf8');
+    const dir = path.dirname(justfilePath);
+    const imports: string[] = [];
+
+    // Match: import[?] 'path' or import[?] "path"
+    //        mod[?] name 'path' or mod[?] name "path"
+    const importRe = /^import\??\s+(['"])(.+?)\1/gm;
+    const modRe = /^mod\??\s+[a-zA-Z_][a-zA-Z0-9_-]*\s+(['"])(.+?)\1/gm;
+
+    for (const match of content.matchAll(importRe)) {
+      imports.push(path.resolve(dir, match[2]));
+    }
+    for (const match of content.matchAll(modRe)) {
+      imports.push(path.resolve(dir, match[2]));
+    }
+
+    return imports;
+  } catch {
+    return [];
+  }
+};

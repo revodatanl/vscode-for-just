@@ -18,7 +18,14 @@ export const activate = (context: vscode.ExtensionContext) => {
         document: vscode.TextDocument,
       ): Promise<vscode.TextEdit[] | undefined> {
         try {
-          const formattedText = await formatJustfileTempFile(document.getText());
+          const path = await import('node:path');
+          const fileDir = document.uri.scheme === 'file'
+            ? path.dirname(document.uri.fsPath)
+            : undefined;
+          const formattedText = await formatJustfileTempFile(
+            document.getText(),
+            fileDir,
+          );
           const fullRange = new vscode.Range(0, 0, document.lineCount, 0);
           return [vscode.TextEdit.replace(fullRange, formattedText)];
         } catch (error) {

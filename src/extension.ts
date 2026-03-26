@@ -19,9 +19,10 @@ export const activate = (context: vscode.ExtensionContext) => {
       ): Promise<vscode.TextEdit[] | undefined> {
         try {
           const path = await import('node:path');
-          const fileDir = document.uri.scheme === 'file'
-            ? path.dirname(document.uri.fsPath)
-            : undefined;
+          const fileDir =
+            document.uri.scheme === 'file'
+              ? path.dirname(document.uri.fsPath)
+              : undefined;
           const formattedText = await formatJustfileTempFile(
             document.getText(),
             fileDir,

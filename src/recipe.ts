@@ -60,7 +60,9 @@ const getRecipeArgs = async (recipe: RecipeParsed): Promise<string | undefined> 
 
 const getEvaluatedVariables = async (): Promise<Record<string, string>> => {
   try {
-    const { stdout } = await asyncExec(`${getJustPath()} --evaluate`, { cwd: workspaceRoot() });
+    const { stdout } = await asyncExec(`${getJustPath()} --evaluate`, {
+      cwd: workspaceRoot(),
+    });
     const vars: Record<string, string> = {};
     for (const line of stdout.split('\n')) {
       const match = line.match(/^(\S+)\s+:=\s+"(.*)"\s*$/);
@@ -87,7 +89,8 @@ export const getRecipes = async (): Promise<RecipeParsed[]> => {
     const evaluatedVars = await getEvaluatedVariables();
     return parseRecipes(stdout, evaluatedVars);
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'An unknown error occurred.';
+    const message =
+      error instanceof Error ? error.message : 'An unknown error occurred.';
     LOGGER.error(message);
     throw new Error(message);
   }

@@ -6,14 +6,14 @@ import { getLogger } from './logger';
 import { getJustPath } from './utils';
 import { getShellContent } from './webview-html';
 import {
-  type StageUpdate,
-  type WebviewState,
   createInitialState,
   refreshCli,
   refreshJustfile,
   refreshNeeded,
   refreshRecipes,
   sendCachedState,
+  type StageUpdate,
+  type WebviewState,
 } from './webview-state';
 
 const LOGGER = getLogger();
@@ -51,23 +51,21 @@ export class RecipesViewProvider implements vscode.WebviewViewProvider {
     webviewView.webview.options = { enableScripts: true };
 
     this.messageListener?.dispose();
-    this.messageListener = webviewView.webview.onDidReceiveMessage(
-      async (message) => {
-        const postFn = makePostFn(webviewView.webview);
-        if (message.command === 'run') {
-          await runRecipeFromWebview(message.name, message.args);
-        } else if (message.command === 'refresh') {
-          await handleRefreshStage(message.stage, postFn);
-        } else if (message.command === 'openUrl') {
-          vscode.env.openExternal(vscode.Uri.parse(message.url));
-        } else if (message.command === 'openFile') {
-          openFileInEditor(message.path);
-        } else if (message.command === 'ready') {
-          sendCachedState(state, postFn);
-          await refreshNeeded(state, postFn);
-        }
-      },
-    );
+    this.messageListener = webviewView.webview.onDidReceiveMessage(async (message) => {
+      const postFn = makePostFn(webviewView.webview);
+      if (message.command === 'run') {
+        await runRecipeFromWebview(message.name, message.args);
+      } else if (message.command === 'refresh') {
+        await handleRefreshStage(message.stage, postFn);
+      } else if (message.command === 'openUrl') {
+        vscode.env.openExternal(vscode.Uri.parse(message.url));
+      } else if (message.command === 'openFile') {
+        openFileInEditor(message.path);
+      } else if (message.command === 'ready') {
+        sendCachedState(state, postFn);
+        await refreshNeeded(state, postFn);
+      }
+    });
 
     webviewView.webview.html = getShellContent();
   }

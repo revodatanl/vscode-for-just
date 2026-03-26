@@ -159,12 +159,7 @@ export const refreshJustfile = async (
   const seq = ++seqJustfile;
 
   state.justfile = { status: 'loading' };
-  post(
-    postFn,
-    'justfile',
-    'loading',
-    renderStageLoading('Locating justfile&hellip;'),
-  );
+  post(postFn, 'justfile', 'loading', renderStageLoading('Locating justfile&hellip;'));
 
   try {
     const path = await getJustfilePath();
@@ -191,12 +186,7 @@ export const refreshRecipes = async (
   const seq = ++seqRecipes;
 
   state.recipes = { status: 'loading' };
-  post(
-    postFn,
-    'recipes',
-    'loading',
-    renderStageLoading('Loading recipes&hellip;'),
-  );
+  post(postFn, 'recipes', 'loading', renderStageLoading('Loading recipes&hellip;'));
 
   try {
     const recipes = await getRecipes();
@@ -245,12 +235,7 @@ export const sendCachedState = (state: WebviewState, postFn: PostFn): void => {
   if (state.recipes.status === 'ok' && state.recipes.html) {
     post(postFn, 'recipes', 'ok', state.recipes.html);
   } else if (state.recipes.status === 'error' && state.recipes.error) {
-    post(
-      postFn,
-      'recipes',
-      'error',
-      renderStageError(state.recipes.error, 'recipes'),
-    );
+    post(postFn, 'recipes', 'error', renderStageError(state.recipes.error, 'recipes'));
   }
 };
 

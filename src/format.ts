@@ -34,13 +34,10 @@ export const formatJustfileTempFile = async (
     await fs.writeFile(tmpFile, content, 'utf8');
     const justPath = getJustPath();
     const justfile = tmpFile.replace(/\\/g, '/');
-    const { stdout } = await execAsync(
-      `${justPath} --justfile "${justfile}" --dump`,
-      {
-        cwd: fileDir ?? tmpDir,
-        maxBuffer: 10 * 1024 * 1024,
-      },
-    );
+    const { stdout } = await execAsync(`${justPath} --justfile "${justfile}" --dump`, {
+      cwd: fileDir ?? tmpDir,
+      maxBuffer: 10 * 1024 * 1024,
+    });
     return stdout;
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);

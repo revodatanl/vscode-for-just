@@ -9,39 +9,33 @@ export interface TaskDefinition extends vscode.TaskDefinition {
 }
 
 export class TaskProvider implements vscode.TaskProvider {
-  public constructor() {}
-
-  public provideTasks() {
-    return [getDefaultRecipeTask()];
+  provideTasks() {
+    return [createDefaultTask()];
   }
 
-  public resolveTask(_task: vscode.Task) {
-    if (_task.definition.type !== EXTENSION_NAME) return undefined;
+  resolveTask(task: vscode.Task) {
+    if (task.definition.type !== EXTENSION_NAME) return undefined;
 
-    const definition = _task.definition as TaskDefinition;
+    const def = task.definition as TaskDefinition;
 
     return new vscode.Task(
-      definition,
-      _task.scope ?? vscode.TaskScope.Workspace,
-      definition.label ?? 'Run recipe',
-      definition.type,
-      new vscode.ShellExecution(definition.task, definition.args ?? []),
+      def,
+      task.scope ?? vscode.TaskScope.Workspace,
+      def.label ?? 'Run recipe',
+      def.type,
+      new vscode.ShellExecution(def.task, def.args ?? []),
     );
   }
 }
 
-export const getDefaultRecipeTask = () => {
-  const runDefaultRecipeTask = new vscode.Task(
+const createDefaultTask = () => {
+  const task = new vscode.Task(
     { type: EXTENSION_NAME, task: 'just' },
     vscode.TaskScope.Workspace,
     'Run default recipe',
     EXTENSION_NAME,
     new vscode.ShellExecution(getJustPath()),
   );
-  runDefaultRecipeTask.presentationOptions = {
-    showReuseMessage: false,
-    close: false,
-  };
-
-  return runDefaultRecipeTask;
+  task.presentationOptions = { showReuseMessage: false, close: false };
+  return task;
 };

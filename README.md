@@ -1,114 +1,101 @@
 # vscode-just
 
-![license](https://img.shields.io/github/license/revodatanl/vscode-for-just?style=flat-square)
-![ci](https://github.com/revodatanl/vscode-for-just/actions/workflows/ci.yml/badge.svg?branch=main)
-[![Gitmoji](https://img.shields.io/badge/gitmoji-%20😜%20😍-FFDD67.svg?style=flat-square)](https://gitmoji.dev)
+[![license](https://img.shields.io/github/license/revodatanl/vscode-for-just?style=flat-square)](https://github.com/revodatanl/vscode-for-just/blob/main/LICENSE)
+[![ci](https://github.com/revodatanl/vscode-for-just/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/revodatanl/vscode-for-just/actions/workflows/ci.yml)
+[![marketplace](https://img.shields.io/visual-studio-marketplace/v/RevoData.vscode-for-just?label=marketplace&style=flat-square)](https://marketplace.visualstudio.com/items?itemName=RevoData.vscode-for-just)
+[![Gitmoji](https://img.shields.io/badge/gitmoji-%20%F0%9F%98%9C%20%F0%9F%98%8D-FFDD67.svg?style=flat-square)](https://gitmoji.dev)
 
-VSCode syntax highlighting extension for the [just](https://github.com/casey/just) language.
-
-Contents:
-
-- [Features](#features)
-- [Known Issues](#known-issues)
-- [Publishing](#publishing)
-- [Release Notes](#release-notes)
-- [Roadmap](#roadmap)
-- [Contributing](#contributing)
-- [References](#references)
+Full-featured [just](https://github.com/casey/just) (justfile) support for Visual Studio Code. Built and maintained by [RevoData](https://github.com/revodatanl).
 
 ## Features
 
-Basic syntax highlighting for `just` files:
+### Syntax highlighting
 
-- Comments
-- Variable assignment and settings
-- Strings & interpolation blocks
-- Recipes: recipe attributes, names, params and dependencies
-- Keywords, constants and operators
-- Some embedded languages
-- Integration with [just-lsp](https://github.com/terror/just-lsp)
+TextMate grammar-based highlighting for justfiles, including:
 
-Commands:
+- Recipe definitions, attributes, parameters, and dependencies
+- Variable assignments, settings, and exports
+- Strings, interpolation blocks (`{{ }}`), and backtick expressions
+- Keywords, constants, and operators
+- Comments (line and block)
 
-- Format on save
-- Run recipe
-- Task running
+### Embedded languages
 
-Demo:
+Syntax highlighting for recipe bodies written in:
 
-- VSCode with `just` syntax highlighting
-   `<img src="./assets/example.png" style="max-width: 75%;" alt="syntax highlight example" />`
+- Shell / Bash
+- Python
+- JavaScript
+- TypeScript
+- Ruby
+- Perl
 
-- GitHub syntax highlighting
+### Language Server (LSP)
 
-    ```just
-    # Demo
+Integration with [just-lsp](https://github.com/terror/just-lsp) for diagnostics, completions, and more. The extension checks for the `just-lsp` binary and prompts for installation if missing. LSP can be toggled via settings.
 
-    set tempdir := "/tmp"
+### Formatter
 
-    export MY_VAR := `./my_script.sh`
+Format-on-save support powered by `just --dump`. Works with unsaved editor content via temp files and correctly resolves relative imports by running in the original file's directory.
 
-    [confirm("Continue?")]
-    @foo PARAM_1="hello" PARAM_2="world" +ARGS="":
-        echo {{ PARAM_1 }} {{ PARAM_2 }} {{ ARGS }}
+### Recipe runner
 
-    python:
-        #!/usr/bin/env python3
-        print('Hello from python!')
+Run any recipe directly from VS Code:
 
+- **Quick pick**: `Just: Run Recipe` command lists all public recipes with docs and group labels, prompts for arguments
+- **Sidebar explorer**: a dedicated activity bar panel that displays all recipes grouped by `[group]` attributes, with inline parameter inputs and one-click run buttons
+
+### Task provider
+
+Registers a `vscode-just` task type so recipes appear in the built-in **Tasks: Run Task** picker and can be referenced in `tasks.json`.
+
+## Example
+
+<img src="./assets/example.png" style="max-width: 75%;" alt="VSCode with just syntax highlighting" />
+
+## Configuration
+
+All settings are under the `vscode-just` namespace:
+
+| Setting | Type | Default | Description |
+|---|---|---|---|
+| `justPath` | `string` | `just` | Path to the `just` binary |
+| `lspPath` | `string` | `just-lsp` | Path to the `just-lsp` binary |
+| `enableLsp` | `boolean` | `true` | Enable/disable the Language Server |
+| `runInTerminal` | `boolean` | `false` | Run recipes in a terminal instead of the output channel |
+| `useSingleTerminal` | `boolean` | `false` | Reuse a single terminal for all recipe runs |
+| `logLevel` | `string` | `info` | Log level: `info`, `warning`, `error`, `none` |
+
+## Installation
+
+### Marketplace
+
+- [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=RevoData.vscode-for-just)
+- [Open VSX](https://open-vsx.org/extension/RevoData/vscode-for-just)
+
+### Manual
+
+- Download the `.vsix` from the latest [release](https://github.com/revodatanl/vscode-for-just/releases).
+
+Or
+
+- Install via CLI:
+
+    ```shell
+    code --install-extension vscode-for-just-X.Y.Z.vsix
     ```
 
-## Known Issues
-
-This extension does simple and/or best effort syntax highlighting. It is not intended to be 100% comprehensive, but rather provide a good enough experience for most users. That being said, if you find a bug or missing feature, please open an issue or a pull request.
+## Known issues
 
 ### Nesting and scoping
 
-Since expressions can have deep nesting and we cannot tell the scope based on indentation or other markers, we run into the following issues. These are limitations of TextMate grammars and is not easily fixable.
-  
-- Expression and recipe specific rules pollute the global repository scopes, meaning we apply `just` highlighting within recipe bodies. This means `just` keywords/operators/etc, like `if`, will highlight everywhere. This is necessary to highlight expressions correctly elsewhere.
+TextMate grammars lack full parser capabilities, which leads to a few known limitations:
 
-- Some nested expressions will break due to lack of awareness of depth and preemptively match a closing character. Ex.
+- **Keyword bleed**: expression-level rules (e.g. `if`) apply globally, including inside recipe bodies, because we cannot scope by indentation.
+- **Nested braces**: deeply nested or escaped braces inside interpolations may match prematurely. For example `{{ '{{ string }}' }}` will break because the grammar matches the first closing `}}`.
+- **Multi-line expressions**: line continuations (`\`) and expressions spanning multiple lines may not highlight correctly.
 
-    ```just
-    echo {{ '{{ string }}' }}
-    ```
-
-    will echo `{{ string }}` since braces within the string are escaped and part of the string's scope. Textmate can't handle this without a full parser, so will match on the first closing brace it finds.
-
-- Line breaking and expressions that span multiple lines may not highlight correctly. As a simple example
-
-    ```just
-    foo param1 \
-        param2='foo':
-    echo {{param1}} {{param2}}
-    ```
-
-## Publishing
-
-This extension is available on the following marketplaces:
-
-- [VSCode](https://marketplace.visualstudio.com/items?itemName=RevoData.vscode-for-just)
-- [OpenVSX](https://open-vsx.org/extension/RevoData/vscode-for-just)
-
-If you are using an open source build of VSCode, you might need to install the extension manually. To do so:
-
-1. Navigate to the latest [release](https://github.com/revodatanl/vscode-for-just/releases) and download the `.vsix` file.
-2. Copy the file to your `.vscode/extensions` directory.
-3. Install via the command line: `code --install-extension .vscode/extensions/vscode-just-X.Y.Z.vsix`
-
-## Release Notes
-
-See [CHANGELOG.md](CHANGELOG.md).
-
-## Roadmap
-
-Outstanding:
-
-- [ ] Improve handling of recipe body highlighting
-- [ ] Improve handling of embedded languages
-- [ ] Inline command runner
-- [ ] Support code outline
+These are inherent to TextMate and not easily fixable without a full parser.
 
 ## Contributing
 

@@ -6,9 +6,9 @@
     "url": "https://github.com/revodatanl/vscode-for-just/issues"
   },
   "displayName": "VSCode for Just",
-  "description": "Justfile syntax support for Visual Studio Code",
+  "description": "Full-featured justfile support — syntax highlighting, embedded languages, LSP integration, recipe runner, formatter, task provider, and sidebar explorer.",
   "license": "MIT",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "engines": {
     "node": ">=22 || ^20.9.0",
     "vscode": ">=1.94.0"
@@ -25,17 +25,22 @@
     "translate": "yarn --silent js-yaml syntaxes/just.tmLanguage.yml > syntaxes/just.tmLanguage.json",
     "format": "prettier  --log-level warn --cache .",
     "lint": "eslint . --cache --cache-location node_modules/.cache/eslint",
-    "gen-scopes": "yarn compile && node out/genScopes.js"
+    "gen-scopes": "yarn compile && node out/gen-scopes.js"
   },
   "categories": [
-    "Programming Languages"
+    "Programming Languages",
+    "Formatters",
+    "Other"
   ],
   "keywords": [
     "just",
     "justfile",
-    "scripts"
+    "syntax highlighting",
+    "task runner",
+    "command runner",
+    "devops"
   ],
-  "icon": "icons/robot.png",
+  "icon": "icons/full-robot.png",
   "main": "./dist/extension.js",
   "contributes": {
     "languages": [
@@ -53,8 +58,8 @@
         ],
         "configuration": "./language-configuration.json",
         "icon": {
-          "light": "./icons/robot.png",
-          "dark": "./icons/robot.png"
+          "light": "./icons/full-robot.png",
+          "dark": "./icons/full-robot.png"
         }
       }
     ],

@@ -9,85 +9,73 @@ enum LogLevel {
   NONE = 'none',
 }
 
-let LOGGER: Logger;
+const LOG_LEVEL_PRIORITY: Record<string, number> = {
+  [LogLevel.INFO]: 0,
+  [LogLevel.WARNING]: 1,
+  [LogLevel.ERROR]: 2,
+  [LogLevel.NONE]: 3,
+};
+
+let instance: Logger;
 
 class Logger implements vscode.Disposable {
-  private outputChannel: vscode.OutputChannel;
+  private channel: vscode.OutputChannel;
   private level: LogLevel;
-  private onDidChangeConfigurationDisposable: vscode.Disposable;
+  private configListener: vscode.Disposable;
 
-  constructor(channelName: string) {
-    this.outputChannel = vscode.window.createOutputChannel(channelName);
-    this.level =
-      vscode.workspace.getConfiguration(EXTENSION_NAME).get(SETTINGS.logLevel) ??
-      LogLevel.INFO;
-    this.onDidChangeConfigurationDisposable = vscode.workspace.onDidChangeConfiguration(
-      (e) => {
-        if (e.affectsConfiguration(`${EXTENSION_NAME}.${SETTINGS.logLevel}`)) {
-          this.level =
-            vscode.workspace.getConfiguration(EXTENSION_NAME).get(SETTINGS.logLevel) ??
-            this.level;
-        }
-      },
-    );
+  constructor(name: string) {
+    this.channel = vscode.window.createOutputChannel(name);
+    this.level = this.readConfigLevel();
+    this.configListener = vscode.workspace.onDidChangeConfiguration((e) => {
+      if (e.affectsConfiguration(`${EXTENSION_NAME}.${SETTINGS.logLevel}`)) {
+        this.level = this.readConfigLevel();
+      }
+    });
   }
 
-  public info(message: string) {
-    this.log(message);
+  info(message: string) {
+    this.log(message, LogLevel.INFO);
   }
 
-  public warning(message: string) {
+  warning(message: string) {
     this.log(message, LogLevel.WARNING);
   }
 
-  public error(message: string) {
+  error(message: string) {
     this.log(message, LogLevel.ERROR);
   }
 
-  public show() {
-    this.outputChannel.show();
+  show() {
+    this.channel.show();
   }
 
-  public dispose() {
-    this.outputChannel.dispose();
-    this.onDidChangeConfigurationDisposable.dispose();
+  dispose() {
+    this.channel.dispose();
+    this.configListener.dispose();
   }
 
-  private log(message: string, level: LogLevel = LogLevel.INFO) {
-    if (!this.shouldLog(level)) return;
+  private readConfigLevel(): LogLevel {
+    return (
+      vscode.workspace.getConfiguration(EXTENSION_NAME).get(SETTINGS.logLevel) ??
+      LogLevel.INFO
+    );
+  }
 
-    const timestamp = new Date().toISOString();
-    const logMessage = `[${timestamp}] [${level}] ${message}`;
+  private log(message: string, level: LogLevel) {
+    if ((LOG_LEVEL_PRIORITY[level] ?? 0) < (LOG_LEVEL_PRIORITY[this.level] ?? 0)) return;
+
+    const line = `[${new Date().toISOString()}] [${level}] ${message}`;
     if (message.endsWith('\n')) {
-      this.outputChannel.append(logMessage);
+      this.channel.append(line);
     } else {
-      this.outputChannel.appendLine(logMessage);
+      this.channel.appendLine(line);
     }
-  }
-
-  private shouldLog(level: LogLevel): boolean {
-    return getLogLevelValue(level) >= getLogLevelValue(this.level);
   }
 }
 
 export const getLogger = (): Logger => {
-  if (!LOGGER) {
-    LOGGER = new Logger(EXTENSION_NAME);
+  if (!instance) {
+    instance = new Logger(EXTENSION_NAME);
   }
-  return LOGGER;
-};
-
-const getLogLevelValue = (level: string): number => {
-  switch (level) {
-    case LogLevel.INFO:
-      return 0;
-    case LogLevel.WARNING:
-      return 1;
-    case LogLevel.ERROR:
-      return 2;
-    case LogLevel.NONE:
-      return 3;
-    default:
-      return 0;
-  }
+  return instance;
 };

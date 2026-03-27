@@ -4,9 +4,9 @@ export enum RecipeParameterKind {
 }
 
 export interface RecipeParameter {
-  default: string;
-  kind: RecipeParameterKind;
   name: string;
+  kind: RecipeParameterKind;
+  default: string;
   [key: string]: unknown;
 }
 
@@ -22,6 +22,6 @@ export interface RecipeResponse {
 export interface RecipeParsed {
   name: string;
   doc: string;
-  parameters: Pick<RecipeParameter, 'default' | 'kind' | 'name'>[];
+  parameters: Pick<RecipeParameter, 'name' | 'kind' | 'default'>[];
   groups: string[];
 }

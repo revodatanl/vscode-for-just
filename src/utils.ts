@@ -1,26 +1,23 @@
-import { exec } from 'child_process';
-import { promisify } from 'util';
+import { exec } from 'node:child_process';
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import { promisify } from 'node:util';
 import * as vscode from 'vscode';
 
 import { EXTENSION_NAME, SETTINGS } from './const';
 import { getLogger } from './logger';
 
-const asyncExec = promisify(exec);
-
-const LOGGER = getLogger();
+const execAsync = promisify(exec);
 
 export const showErrorWithLink = (message: string) => {
-  const outputButton = 'Output';
-  vscode.window
-    .showErrorMessage(message, outputButton)
-    .then((selection) => selection === outputButton && LOGGER.show());
+  vscode.window.showErrorMessage(message, 'Output').then((selection) => {
+    if (selection === 'Output') getLogger().show();
+  });
 };
 
 export const workspaceRoot = (): string => {
-  const workspaceFolders = vscode.workspace.workspaceFolders;
-  return workspaceFolders && workspaceFolders.length > 0
-    ? workspaceFolders[0].uri.fsPath
-    : '~';
+  const folders = vscode.workspace.workspaceFolders;
+  return folders && folders.length > 0 ? folders[0].uri.fsPath : '~';
 };
 
 export const getJustPath = (): string => {
@@ -33,7 +30,7 @@ export const getJustPath = (): string => {
 
 export const getJustVersion = async (): Promise<string | undefined> => {
   try {
-    const { stdout } = await asyncExec(`${getJustPath()} --version`);
+    const { stdout } = await execAsync(`${getJustPath()} --version`);
     const match = stdout.trim().match(/just\s+([\d.]+)/);
     return match ? match[1] : stdout.trim();
   } catch {
@@ -42,9 +39,6 @@ export const getJustVersion = async (): Promise<string | undefined> => {
 };
 
 export const getJustfilePath = async (): Promise<string> => {
-  const fs = await import('node:fs/promises');
-  const path = await import('node:path');
-
   const root = workspaceRoot();
   const candidates = ['justfile', 'Justfile', '.justfile'];
 
@@ -61,22 +55,12 @@ export const getJustfilePath = async (): Promise<string> => {
   throw new Error(`No justfile found in ${root}`);
 };
 
-/**
- * Parses a justfile for `import` and `mod` statements and returns the
- * resolved file paths. Supports `import 'path'`, `import? 'path'`,
- * `mod name 'path'`, and `mod? name 'path'` with single or double quotes.
- */
 export const getJustfileImports = async (justfilePath: string): Promise<string[]> => {
-  const fs = await import('node:fs/promises');
-  const path = await import('node:path');
-
   try {
     const content = await fs.readFile(justfilePath, 'utf8');
     const dir = path.dirname(justfilePath);
     const imports: string[] = [];
 
-    // Match: import[?] 'path' or import[?] "path"
-    //        mod[?] name 'path' or mod[?] name "path"
     const importRe = /^import\??\s+(['"])(.+?)\1/gm;
     const modRe = /^mod\??\s+[a-zA-Z_][a-zA-Z0-9_-]*\s+(['"])(.+?)\1/gm;
 

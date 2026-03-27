@@ -1,13 +1,14 @@
 import path from 'node:path';
+
 import * as vscode from 'vscode';
 
 import { COMMANDS, EXTENSION_NAME } from './const';
 import { formatJustfileTempFile } from './formatter';
-import { getLauncher } from './terminal';
-import { getLogger } from './logger';
 import { createLanguageClient, stopLanguageClient } from './language-client';
+import { getLogger } from './logger';
 import { runRecipeCommand } from './recipe';
 import { TaskProvider } from './tasks';
+import { getLauncher } from './terminal';
 import { RecipesViewProvider, showRecipesPanel } from './webview';
 
 export const activate = (context: vscode.ExtensionContext) => {

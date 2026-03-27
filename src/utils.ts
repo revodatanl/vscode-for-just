@@ -2,6 +2,7 @@ import { exec } from 'node:child_process';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { promisify } from 'node:util';
+
 import * as vscode from 'vscode';
 
 import { EXTENSION_NAME, SETTINGS } from './const';

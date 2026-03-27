@@ -1,11 +1,12 @@
 import { exec, spawn } from 'node:child_process';
 import { promisify } from 'node:util';
+
 import * as vscode from 'vscode';
 import yargsParser from 'yargs-parser';
 
 import { EXTENSION_NAME, SETTINGS } from './const';
-import { getLauncher } from './terminal';
 import { getLogger } from './logger';
+import { getLauncher } from './terminal';
 import { RecipeParameterKind, RecipeParsed, RecipeResponse } from './types';
 import { getJustPath, workspaceRoot } from './utils';
 

@@ -1,8 +1,8 @@
 import * as vscode from 'vscode';
 import yargsParser from 'yargs-parser';
 
-import { getLauncher } from './terminal';
 import { getLogger } from './logger';
+import { getLauncher } from './terminal';
 import { getJustPath } from './utils';
 import { getShellContent } from './webview-render';
 import {

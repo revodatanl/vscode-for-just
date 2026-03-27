@@ -10,6 +10,18 @@ import { getJustPath } from './utils';
 const execAsync = promisify(exec);
 const log = getLogger();
 
+/**
+ * Formats justfile content using `just --dump` with a temporary file.
+ *
+ * Runs `just` with `cwd` set to the original file's directory so that
+ * relative `import` paths resolve correctly. A temp file is still used
+ * so that unsaved editor content can be formatted.
+ *
+ * @param content The justfile content to format.
+ * @param fileDir The directory of the original justfile (used as cwd for
+ *                resolving relative imports). Falls back to a temp directory.
+ * @returns A promise that resolves to the formatted content.
+ */
 export const formatJustfileTempFile = async (
   content: string,
   fileDir?: string,

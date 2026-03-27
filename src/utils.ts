@@ -55,13 +55,20 @@ export const getJustfilePath = async (): Promise<string> => {
   throw new Error(`No justfile found in ${root}`);
 };
 
+/**
+ * Parses a justfile for `import` and `mod` statements and returns the
+ * resolved file paths. Supports `import 'path'`, `import? 'path'`,
+ * `mod name 'path'`, and `mod? name 'path'` with single or double quotes.
+ */
 export const getJustfileImports = async (justfilePath: string): Promise<string[]> => {
   try {
     const content = await fs.readFile(justfilePath, 'utf8');
     const dir = path.dirname(justfilePath);
     const imports: string[] = [];
 
+    // Match: import[?] 'path' or import[?] "path"
     const importRe = /^import\??\s+(['"])(.+?)\1/gm;
+    // Match: mod[?] name 'path' or mod[?] name "path"
     const modRe = /^mod\??\s+[a-zA-Z_][a-zA-Z0-9_-]*\s+(['"])(.+?)\1/gm;
 
     for (const match of content.matchAll(importRe)) {

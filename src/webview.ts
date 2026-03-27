@@ -68,9 +68,11 @@ export class RecipesViewProvider implements vscode.WebviewViewProvider {
     webviewView.webview.options = { enableScripts: true };
 
     this.messageListener?.dispose();
-    this.messageListener = webviewView.webview.onDidReceiveMessage((message) =>
-      handleMessage(message, makePostFn(webviewView.webview)),
-    );
+    this.messageListener = webviewView.webview.onDidReceiveMessage((message) => {
+      handleMessage(message, makePostFn(webviewView.webview)).catch((err) =>
+        log.error(`Webview message error: ${err}`),
+      );
+    });
 
     webviewView.webview.html = getShellContent();
   }
@@ -99,7 +101,9 @@ export const showRecipesPanel = async () => {
 
   currentPanel.webview.onDidReceiveMessage((message) => {
     if (!currentPanel) return;
-    handleMessage(message, makePostFn(currentPanel.webview));
+    handleMessage(message, makePostFn(currentPanel.webview)).catch((err) =>
+      log.error(`Webview message error: ${err}`),
+    );
   });
 
   currentPanel.webview.html = getShellContent();

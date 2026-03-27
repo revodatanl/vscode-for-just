@@ -1,4 +1,5 @@
-import { spawn } from 'child_process';
+import { spawn } from 'node:child_process';
+
 import * as vscode from 'vscode';
 import {
   LanguageClient,
@@ -10,22 +11,22 @@ import { EXTENSION_NAME, SETTINGS } from './const';
 import { getLogger } from './logger';
 import { workspaceRoot } from './utils';
 
-const LOGGER = getLogger();
+const log = getLogger();
 
 let client: LanguageClient | undefined;
 
 export const createLanguageClient = async (): Promise<LanguageClient | null> => {
   const config = vscode.workspace.getConfiguration(EXTENSION_NAME);
   if (!config.get(SETTINGS.enableLsp)) {
-    LOGGER.info('Just LSP is disabled via settings.');
+    log.info('Just LSP is disabled via settings.');
     return null;
   }
 
   const lspPath = getLspPath();
+  const available = await checkLspAvailability(lspPath);
 
-  const isAvailable = await checkLspAvailability(lspPath);
-  if (!isAvailable) {
-    LOGGER.warning(`Just LSP binary not found at path: ${lspPath}.`);
+  if (!available) {
+    log.warning(`Just LSP binary not found at path: ${lspPath}.`);
     vscode.window
       .showWarningMessage(
         `Just LSP binary not found at path: ${lspPath}. Please check the installation or configure the path in settings.`,
@@ -38,21 +39,16 @@ export const createLanguageClient = async (): Promise<LanguageClient | null> => 
             vscode.Uri.parse('https://github.com/terror/just-lsp#installation'),
           );
         } else if (selection === "Don't Show Again") {
-          vscode.workspace
-            .getConfiguration(EXTENSION_NAME)
-            .update(SETTINGS.enableLsp, false, vscode.ConfigurationTarget.Global);
+          config.update(SETTINGS.enableLsp, false, vscode.ConfigurationTarget.Global);
         }
       });
-
     return null;
   }
 
   const serverOptions: ServerOptions = {
     command: lspPath,
     args: [],
-    options: {
-      cwd: workspaceRoot(),
-    },
+    options: { cwd: workspaceRoot() },
   };
 
   const clientOptions: LanguageClientOptions = {
@@ -73,11 +69,11 @@ export const createLanguageClient = async (): Promise<LanguageClient | null> => 
 
   try {
     await client.start();
-    LOGGER.info(`Just LSP started successfully using: ${lspPath}`);
+    log.info(`Just LSP started successfully using: ${lspPath}`);
     return client;
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
-    LOGGER.error(`Failed to start Just LSP: ${message}`);
+    log.error(`Failed to start Just LSP: ${message}`);
     vscode.window.showErrorMessage(`Failed to start Just Language Server: ${message}`);
     return null;
   }
@@ -90,32 +86,23 @@ export const stopLanguageClient = async (): Promise<void> => {
   }
 };
 
-const checkLspAvailability = (lspPath: string): Promise<boolean> => {
-  return new Promise((resolve) => {
-    const process = spawn(lspPath, ['--version'], {
+const checkLspAvailability = (lspPath: string): Promise<boolean> =>
+  new Promise((resolve) => {
+    const child = spawn(lspPath, ['--version'], {
       stdio: 'ignore',
       cwd: workspaceRoot(),
     });
 
-    process.on('close', (code: number) => {
-      resolve(code === 0);
-    });
-    process.on('error', () => {
-      resolve(false);
-    });
+    child.on('close', (code: number) => resolve(code === 0));
+    child.on('error', () => resolve(false));
 
     setTimeout(() => {
-      process.kill();
+      child.kill();
       resolve(false);
     }, 5000);
   });
-};
 
-const getLspPath = (): string => {
-  // TODO: support bundled LSP binary
-  return (
-    (vscode.workspace
-      .getConfiguration(EXTENSION_NAME)
-      .get(SETTINGS.lspPath) as string) || 'just-lsp'
-  );
-};
+const getLspPath = (): string =>
+  (vscode.workspace
+    .getConfiguration(EXTENSION_NAME)
+    .get(SETTINGS.lspPath) as string) || 'just-lsp';

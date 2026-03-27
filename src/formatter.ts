@@ -1,11 +1,14 @@
 import { exec } from 'node:child_process';
+import fs from 'node:fs/promises';
+import os from 'node:os';
+import path from 'node:path';
 import { promisify } from 'node:util';
 
 import { getLogger } from './logger';
 import { getJustPath } from './utils';
 
 const execAsync = promisify(exec);
-const LOGGER = getLogger();
+const log = getLogger();
 
 /**
  * Formats justfile content using `just --dump` with a temporary file.
@@ -23,10 +26,6 @@ export const formatJustfileTempFile = async (
   content: string,
   fileDir?: string,
 ): Promise<string> => {
-  const fs = await import('node:fs/promises');
-  const os = await import('node:os');
-  const path = await import('node:path');
-
   const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), 'vscode-just-'));
   const tmpFile = path.join(tmpDir, 'justfile');
 
@@ -41,7 +40,7 @@ export const formatJustfileTempFile = async (
     return stdout;
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
-    LOGGER.error(`Error formatting justfile:\n${message}`);
+    log.error(`Error formatting justfile:\n${message}`);
     throw new Error('Failed to format justfile');
   } finally {
     await fs.rm(tmpDir, { recursive: true, force: true });

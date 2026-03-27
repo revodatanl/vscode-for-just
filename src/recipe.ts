@@ -1,17 +1,17 @@
-import { exec, spawn } from 'child_process';
-import { promisify } from 'util';
+import { exec, spawn } from 'node:child_process';
+import { promisify } from 'node:util';
+
 import * as vscode from 'vscode';
 import yargsParser from 'yargs-parser';
 
 import { EXTENSION_NAME, SETTINGS } from './const';
-import { getLauncher } from './launcher';
 import { getLogger } from './logger';
+import { getLauncher } from './terminal';
 import { RecipeParameterKind, RecipeParsed, RecipeResponse } from './types';
 import { getJustPath, workspaceRoot } from './utils';
 
-const LOGGER = getLogger();
-
-const asyncExec = promisify(exec);
+const log = getLogger();
+const execAsync = promisify(exec);
 
 export const runRecipeCommand = async () => {
   let recipes: RecipeParsed[];
@@ -23,13 +23,13 @@ export const runRecipeCommand = async () => {
   }
   if (!recipes.length) return;
 
-  const recipeToRun = await selectRecipe(recipes);
-  if (!recipeToRun) return;
+  const selected = await selectRecipe(recipes);
+  if (!selected) return;
 
-  const args = await getRecipeArgs(recipeToRun);
+  const args = await promptForArgs(selected);
   if (args === undefined) return;
 
-  runRecipe(recipeToRun, yargsParser(args));
+  runRecipe(selected, yargsParser(args));
 };
 
 const selectRecipe = async (
@@ -43,14 +43,14 @@ const selectRecipe = async (
     }))
     .sort((a, b) => a.label.localeCompare(b.label));
 
-  const selected = await vscode.window.showQuickPick(choices, {
+  const picked = await vscode.window.showQuickPick(choices, {
     placeHolder: 'Select a recipe to run',
   });
 
-  return selected ? recipes.find((r) => r.name === selected.label) : undefined;
+  return picked ? recipes.find((r) => r.name === picked.label) : undefined;
 };
 
-const getRecipeArgs = async (recipe: RecipeParsed): Promise<string | undefined> => {
+const promptForArgs = async (recipe: RecipeParsed): Promise<string | undefined> => {
   if (!recipe.parameters.length) return '';
 
   return vscode.window.showInputBox({
@@ -60,7 +60,7 @@ const getRecipeArgs = async (recipe: RecipeParsed): Promise<string | undefined> 
 
 const getEvaluatedVariables = async (): Promise<Record<string, string>> => {
   try {
-    const { stdout } = await asyncExec(`${getJustPath()} --evaluate`, {
+    const { stdout } = await execAsync(`${getJustPath()} --evaluate`, {
       cwd: workspaceRoot(),
     });
     const vars: Record<string, string> = {};
@@ -79,10 +79,10 @@ const getEvaluatedVariables = async (): Promise<Record<string, string>> => {
 export const getRecipes = async (): Promise<RecipeParsed[]> => {
   const cmd = `${getJustPath()} --dump --dump-format=json`;
   try {
-    const { stdout, stderr } = await asyncExec(cmd, { cwd: workspaceRoot() });
+    const { stdout, stderr } = await execAsync(cmd, { cwd: workspaceRoot() });
 
     if (stderr) {
-      LOGGER.error(stderr);
+      log.error(stderr);
       throw new Error(stderr);
     }
 
@@ -91,7 +91,7 @@ export const getRecipes = async (): Promise<RecipeParsed[]> => {
   } catch (error) {
     const message =
       error instanceof Error ? error.message : 'An unknown error occurred.';
-    LOGGER.error(message);
+    log.error(message);
     throw new Error(message);
   }
 };
@@ -132,23 +132,22 @@ export const parseRecipes = (
     }));
 };
 
-export const paramsToString = (params: RecipeParsed['parameters']): string => {
-  return params
+export const paramsToString = (params: RecipeParsed['parameters']): string =>
+  params
     .sort((a, b) =>
       a.kind === RecipeParameterKind.PLUS ? 1 : a.name.localeCompare(b.name),
     )
     .map((p) => {
-      let formatted = `${p.kind === RecipeParameterKind.PLUS ? '+' : ''}${p.name}`;
-      if (p.default != null) formatted += `=${p.default}`;
-      return formatted;
+      const prefix = p.kind === RecipeParameterKind.PLUS ? '+' : '';
+      const suffix = p.default != null ? `=${p.default}` : '';
+      return `${prefix}${p.name}${suffix}`;
     })
     .join(' ');
-};
 
-const runRecipe = async (recipe: RecipeParsed, optionalArgs: yargsParser.Arguments) => {
-  const args = [recipe.name, ...optionalArgs._.map(String)];
+const runRecipe = (recipe: RecipeParsed, parsed: yargsParser.Arguments) => {
+  const args = [recipe.name, ...parsed._.map(String)];
 
-  LOGGER.info(`Running recipe: ${recipe.name} with args: ${args.join(' ')}`);
+  log.info(`Running recipe: ${recipe.name} with args: ${args.join(' ')}`);
   if (vscode.workspace.getConfiguration(EXTENSION_NAME).get(SETTINGS.runInTerminal)) {
     getLauncher().launch(getJustPath(), args);
   } else {
@@ -156,15 +155,8 @@ const runRecipe = async (recipe: RecipeParsed, optionalArgs: yargsParser.Argumen
   }
 };
 
-const runRecipeInBackground = async (args: string[]) => {
-  const childProcess = spawn(getJustPath(), args, { cwd: workspaceRoot() });
-  childProcess.stdout.on('data', (data: string) => {
-    LOGGER.info(data);
-  });
-  childProcess.stderr.on('data', (data: string) => {
-    // TODO: successfully run recipes also log to stderr
-    // so treat everything as info for now
-    LOGGER.info(data);
-    // showErrorWithLink('Error running recipe.');
-  });
+const runRecipeInBackground = (args: string[]) => {
+  const child = spawn(getJustPath(), args, { cwd: workspaceRoot() });
+  child.stdout.on('data', (data: string) => log.info(data));
+  child.stderr.on('data', (data: string) => log.info(data));
 };
